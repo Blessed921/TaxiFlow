@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Public profile information for riders and drivers",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["rider", "driver", "admin"] },
+        "rating": { "type": "number" },
+        "totalRatings": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["displayName", "role"]
+    },
+    "UserPrivate": {
+      "title": "Private User Info",
+      "description": "PII and sensitive data",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "stripeCustomerId": { "type": "string" }
+      },
+      "required": ["email"]
+    },
+    "Ride": {
+      "title": "Ride/Delivery",
+      "description": "Information about a ride or delivery request",
+      "type": "object",
+      "properties": {
+        "riderId": { "type": "string" },
+        "driverId": { "type": "string" },
+        "status": { "type": "string", "enum": ["requested", "accepted", "arrived", "started", "completed", "cancelled"] },
+        "pickup": { 
+          "type": "object",
+          "properties": {
+            "address": { "type": "string" },
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          }
+        },
+        "destination": {
+          "type": "object",
+          "properties": {
+             "address": { "type": "string" },
+             "lat": { "type": "number" },
+             "lng": { "type": "number" }
+          }
+        },
+        "price": { "type": "number" },
+        "surgeMultiplier": { "type": "number" },
+        "vehicleType": { "type": "string" },
+        "promoCode": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["riderId", "status", "pickup", "destination", "createdAt"]
+    },
+    "DriverStatus": {
+      "title": "Driver Real-time Status",
+      "description": "Current location and availability of a driver",
+      "type": "object",
+      "properties": {
+        "driverId": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          }
+        },
+        "status": { "type": "string", "enum": ["online", "offline", "busy"] },
+        "lastUpdate": { "type": "string" }
+      },
+      "required": ["driverId", "location", "status", "lastUpdate"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "UserProfile", "description": "Public user profiles" },
+    "/users/{userId}/private/info": { "schema": "UserPrivate", "description": "Private sensitive user info" },
+    "/rides/{rideId}": { "schema": "Ride", "description": "Ride/Delivery records" },
+    "/driverStatus/{driverId}": { "schema": "DriverStatus", "description": "Real-time driver location and status" }
+  }
+}

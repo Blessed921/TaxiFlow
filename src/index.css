@@ -1,0 +1,42 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-indigo-600: #4f46e5;
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-900: #0f172a;
+}
+
+/* Fix for Leaflet marker icons in Vite/React */
+.leaflet-default-icon-path {
+  background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png);
+}
+
+.map-container {
+  height: 100%;
+  width: 100%;
+}
+
+.custom-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot-pattern {
+  background-image: radial-gradient(#000 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.dot-pattern-large {
+  background-image: radial-gradient(#000 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-100 font-sans text-slate-900;
+  }
+}

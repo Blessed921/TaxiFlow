@@ -1,0 +1,8 @@
+{
+  "name": "TaxiFlow",
+  "description": "A comprehensive taxi and delivery platform featuring real-time tracking, multi-user roles, and a scalable backend.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
