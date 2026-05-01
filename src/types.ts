@@ -19,6 +19,14 @@ export enum DriverAvailability {
   BUSY = 'busy',
 }
 
+export interface VehicleInfo {
+  make: string;
+  model: string;
+  color: string;
+  plate: string;
+  type: string;
+}
+
 export interface UserProfile {
   uid: string;
   displayName: string;
@@ -26,6 +34,9 @@ export interface UserProfile {
   role: UserRole;
   rating?: number;
   totalRatings?: number;
+  phone?: string;
+  vehicle?: VehicleInfo;
+  onboarded?: boolean;
   createdAt: any;
 }
 
@@ -35,10 +46,16 @@ export interface Location {
   address?: string;
 }
 
+export enum RideType {
+  RIDE = 'ride',
+  DISPATCH = 'dispatch',
+}
+
 export interface Ride {
   id: string;
   riderId: string;
   driverId?: string;
+  type: RideType;
   status: RideStatus;
   pickup: Location;
   destination: Location;
@@ -55,6 +72,14 @@ export interface DriverStatus {
   location: Location;
   status: DriverAvailability;
   lastUpdate: any;
+}
+
+export interface ChatMessage {
+  id: string;
+  rideId: string;
+  senderId: string;
+  text: string;
+  createdAt: any;
 }
 
 export enum OperationType {

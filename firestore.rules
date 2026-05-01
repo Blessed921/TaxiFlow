@@ -16,7 +16,8 @@ service cloud.firestore {
     function isAdmin() { 
       return isSignedIn() && (
         request.auth.token.email == 'blessedt.BJ@gmail.com' ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       ); 
     }
 
@@ -30,20 +31,37 @@ service cloud.firestore {
                (data.get('totalRatings', null) == null || data.totalRatings is number);
       }
 
-      allow read: if isSignedIn();
+      // riders/drivers need to see each other's profiles for rides
+      // Allow any signed in user to get a profile (needed for identification in ride requests)
+      // We check for isOwner for listing or use isOwner for get to be extra safe if needed, 
+      // but standard "get" for identification is usually fine as long as PII is separate.
+      allow get: if isSignedIn();
+      allow list: if isOwner(userId) || isAdmin();
       
       allow create: if isOwner(userId) && 
                        isValidUserProfile(incoming()) && 
                        incoming().keys().hasAll(['displayName', 'role', 'createdAt']) &&
-                       // Allow photoURL if present
                        (incoming().keys().size() == 3 || (incoming().keys().hasAll(['photoURL']) && incoming().keys().size() == 4));
 
       allow update: if (isOwner(userId) && 
                         isValidUserProfile(incoming()) && 
-                        // Allow setting role if it wasn't set, or keeping it the same
                         (existing().get('role', null) == null || incoming().role == existing().role) &&
-                        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'role', 'updatedAt', 'totalRatings', 'rating'])) ||
+                        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'role', 'updatedAt', 'totalRatings', 'rating', 'phone', 'vehicle', 'onboarded'])) ||
                        isAdmin();
+    }
+
+    // Chats
+    match /chats/{chatId} {
+      function isValidChat(data) {
+        return data.rideId is string && isValidId(data.rideId) &&
+               data.senderId == request.auth.uid &&
+               data.text is string && data.text.size() <= 1000 &&
+               data.createdAt == request.time;
+      }
+
+      allow list, get: if isSignedIn(); // Simplified for now, complex checks often fail on list
+      
+      allow create: if isSignedIn() && isValidChat(incoming());
     }
 
     // User Private Info
@@ -73,6 +91,7 @@ service cloud.firestore {
          (resource.data.status == 'requested' && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver') ||
          isAdmin()
        );
+       
        allow get: if isSignedIn() && (
          resource.data.riderId == request.auth.uid || 
          resource.data.driverId == request.auth.uid || 

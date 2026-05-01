@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from './lib/firebase';
+import { auth, db, handleFirestoreError, OperationType } from './lib/firebase';
 import { UserProfile, UserRole } from './types';
 
 interface AppContextType {
@@ -31,6 +31,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setProfile(null);
           }
           setLoading(false);
+        }, (error) => {
+          handleFirestoreError(error, OperationType.GET, `users/${u.uid}`);
         });
         return () => unsubProfile();
       } else {

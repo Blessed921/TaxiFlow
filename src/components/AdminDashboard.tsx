@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../lib/firebase';
+import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, query, onSnapshot, getDocs, limit } from 'firebase/firestore';
 import { Ride, RideStatus, UserProfile, UserRole } from '../types';
 import { motion } from 'motion/react';
@@ -26,6 +26,8 @@ const AdminDashboard: React.FC = () => {
         totalRevenue: revenue
       }));
       setRecentRides(docs.slice(0, 10));
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'rides');
     });
 
     // Listen to users for counts
@@ -36,6 +38,8 @@ const AdminDashboard: React.FC = () => {
         activeDrivers: docs.filter(u => u.role === UserRole.DRIVER).length,
         activeRiders: docs.filter(u => u.role === UserRole.RIDER).length
       }));
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'users');
     });
 
     return () => {

@@ -10,9 +10,33 @@
         "role": { "type": "string", "enum": ["rider", "driver", "admin"] },
         "rating": { "type": "number" },
         "totalRatings": { "type": "number" },
+        "phone": { "type": "string" },
+        "onboarded": { "type": "boolean" },
+        "vehicle": {
+          "type": "object",
+          "properties": {
+            "make": { "type": "string" },
+            "model": { "type": "string" },
+            "color": { "type": "string" },
+            "plate": { "type": "string" },
+            "type": { "type": "string" }
+          }
+        },
         "createdAt": { "type": "string" }
       },
       "required": ["displayName", "role"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "A message sent within a ride context",
+      "type": "object",
+      "properties": {
+        "rideId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["rideId", "senderId", "text", "createdAt"]
     },
     "UserPrivate": {
       "title": "Private User Info",
@@ -81,6 +105,7 @@
     "/users/{userId}": { "schema": "UserProfile", "description": "Public user profiles" },
     "/users/{userId}/private/info": { "schema": "UserPrivate", "description": "Private sensitive user info" },
     "/rides/{rideId}": { "schema": "Ride", "description": "Ride/Delivery records" },
-    "/driverStatus/{driverId}": { "schema": "DriverStatus", "description": "Real-time driver location and status" }
+    "/driverStatus/{driverId}": { "schema": "DriverStatus", "description": "Real-time driver location and status" },
+    "/chats/{chatId}": { "schema": "ChatMessage", "description": "Messages between rider and driver" }
   }
 }

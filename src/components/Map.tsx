@@ -18,11 +18,11 @@ interface MapProps {
 
 const createIcon = (type: 'pickup' | 'destination' | 'driver') => {
   const iconMarkup = renderToStaticMarkup(
-    <div className={`p-2 rounded-full border-2 ${
-      type === 'pickup' ? 'bg-blue-500 border-blue-200' : 
-      type === 'destination' ? 'bg-green-500 border-green-200' : 
-      'bg-orange-500 border-orange-200'
-    } text-white shadow-lg`}>
+    <div className={`p-2 rounded-xl border-2 ${
+      type === 'pickup' ? 'bg-indigo-600 border-white shadow-premium' : 
+      type === 'destination' ? 'bg-rose-500 border-white shadow-premium' : 
+      'bg-slate-900 border-white shadow-premium'
+    } text-white`}>
       {type === 'pickup' && <MapPin size={16} />}
       {type === 'destination' && <Navigation size={16} />}
       {type === 'driver' && <Car size={16} />}
@@ -32,13 +32,15 @@ const createIcon = (type: 'pickup' | 'destination' | 'driver') => {
   return L.divIcon({
     html: iconMarkup,
     className: 'custom-marker',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
   });
 };
 
-const MapEvents = ({ onClick }: { onClick?: (lat: number, lng: number) => void }) => {
+const MapEvents = ({ onClick, center }: { onClick?: (lat: number, lng: number) => void, center?: [number, number] }) => {
   const map = useMap();
+  
+  // Handle map click
   useEffect(() => {
     if (!onClick) return;
     const handleMapClick = (e: L.LeafletMouseEvent) => {
@@ -47,12 +49,20 @@ const MapEvents = ({ onClick }: { onClick?: (lat: number, lng: number) => void }
     map.on('click', handleMapClick);
     return () => { map.off('click', handleMapClick); };
   }, [map, onClick]);
+
+  // Force re-center when center prop changes
+  useEffect(() => {
+    if (center) {
+      map.setView(center, map.getZoom(), { animate: true });
+    }
+  }, [center, map]);
+
   return null;
 };
 
-const Map: React.FC<MapProps> = ({ center = [51.505, -0.09], markers = [], onMapClick, showUserLocation }) => {
+const Map: React.FC<MapProps> = ({ center = [51.505, -0.09] as [number, number], markers = [], onMapClick, showUserLocation }) => {
   return (
-    <MapContainer center={center} zoom={13} className="h-full w-full rounded-2xl overflow-hidden" zoomControl={false}>
+    <MapContainer center={center} zoom={14} className="h-full w-full grayscale-[0.3]" zoomControl={false}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -64,7 +74,7 @@ const Map: React.FC<MapProps> = ({ center = [51.505, -0.09], markers = [], onMap
         </Marker>
       ))}
 
-      <MapEvents onClick={onMapClick} />
+      <MapEvents onClick={onMapClick} center={center} />
     </MapContainer>
   );
 };
